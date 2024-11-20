@@ -1,0 +1,339 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Singapore HDB Resale Analysis</title>  
+    <script src="https://d3js.org/d3.v7.min.js"></script>  
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">  
+    <style>  
+        * {  
+            margin: 0;  
+            padding: 0;  
+            box-sizing: border-box;  
+        }  
+
+        body {  
+            font-family: 'Space Grotesk', sans-serif;  
+            background: #ffffff;  
+            color: #1a1a1a;  
+            padding: 2rem;  
+            min-height: 100vh;  
+        }  
+
+        .container {  
+            max-width: 1200px;  
+            margin: 0 auto;  
+        }  
+
+        .header {  
+            text-align: left;  
+            margin-bottom: 3rem;  
+            position: relative;  
+        }  
+
+        .title {  
+            font-family: 'Outfit', sans-serif;  
+            font-size: 3.5rem;  
+            font-weight: 700;  
+            line-height: 1.2;  
+            margin-bottom: 1rem;  
+            background: linear-gradient(135deg, #6A0DAD, #22c55e);  
+            -webkit-background-clip: text;  
+            -webkit-text-fill-color: transparent;  
+        }  
+
+        .subtitle {  
+            font-size: 1.2rem;  
+            color: #4a5568;  
+            margin-bottom: 0.5rem;  
+        }  
+
+        .student-id {  
+            position: absolute;  
+            right: 0;  
+            top: 50%;  
+            transform: translateY(-50%);  
+            padding: 0.75rem 1.5rem;  
+            background: rgba(106, 13, 173, 0.1);  
+            border-radius: 999px;  
+            color: #6A0DAD;  
+            font-weight: 600;  
+        }  
+
+        .analysis-grid {  
+            display: grid;  
+            grid-template-columns: repeat(3, 1fr);  
+            gap: 1.5rem;  
+            margin-bottom: 3rem;  
+        }  
+
+        .analysis-card {  
+            background: #ffffff;  
+            border: 1px solid rgba(0, 0, 0, 0.1);  
+            border-radius: 1rem;  
+            padding: 1.5rem;  
+            transition: all 0.3s ease;  
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);  
+        }  
+
+        .analysis-card:hover {  
+            transform: translateY(-5px);  
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);  
+        }  
+
+        .card-number {  
+            font-size: 1.5rem;  
+            font-weight: 700;  
+            color: #6A0DAD;  
+            margin-bottom: 1rem;  
+            font-family: 'Outfit', sans-serif;  
+        }  
+
+        .card-text {  
+            color: #4a5568;  
+            line-height: 1.6;  
+        }  
+
+        .highlight-bedok {  
+            color: #6A0DAD;  
+            font-weight: 600;  
+        }  
+
+        .highlight-hougang {  
+            color: #22c55e;  
+            font-weight: 600;  
+        }  
+
+        .chart-container {  
+            background: #ffffff;  
+            border-radius: 1rem;  
+            padding: 2rem;  
+            margin-top: 2rem;  
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);  
+            border: 1px solid rgba(0, 0, 0, 0.1);  
+        }  
+
+        .tooltip {  
+            position: absolute;  
+            background: rgba(255, 255, 255, 0.95);  
+            border: 1px solid rgba(106, 13, 173, 0.2);  
+            padding: 1rem;  
+            border-radius: 0.5rem;  
+            pointer-events: none;  
+            color: #1a1a1a;  
+            font-size: 0.875rem;  
+            backdrop-filter: blur(8px);  
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);  
+            transition: all 0.2s ease;  
+        }  
+
+        .tooltip-label {  
+            color: #4a5568;  
+            font-size: 0.75rem;  
+            text-transform: uppercase;  
+            letter-spacing: 0.05em;  
+        }  
+
+        .tooltip-value {  
+            color: #1a1a1a;  
+            font-weight: 600;  
+            margin-bottom: 0.5rem;  
+        }  
+
+        .bar {  
+            transition: all 0.3s ease;  
+            opacity: 0.9;  
+        }  
+
+        .bar:hover {  
+            opacity: 1;  
+        }  
+
+        .axis text {  
+            fill: #4a5568;  
+            font-size: 0.875rem;  
+        }  
+
+        .axis line, .axis path {  
+            stroke: rgba(0, 0, 0, 0.1);  
+        }  
+
+        .legend text {  
+            fill: #1a1a1a;  
+            font-size: 0.875rem;  
+        }  
+    </style>  
+</head>  
+<body>  
+    <div class="container">  
+        <header class="header">  
+            <h1 class="title">Singapore HDB<br>Resale Analysis</h1>  
+            <p class="subtitle">Comparing property values in <span class="highlight-bedok">Bedok</span> and <span class="highlight-hougang">Hougang</span> (2015-2016)</p>  
+            <div class="student-id">1009612 LIU ZILEI</div>  
+        </header>  
+
+        <div class="analysis-grid">  
+            <div class="analysis-card">  
+                <div class="card-number">01</div>  
+                <p class="card-text">  
+                    Analysis of HDB resale prices across two major regions:   
+                    <span class="highlight-bedok">Bedok</span> and   
+                    <span class="highlight-hougang">Hougang</span>, covering 3 to 5 room flats.  
+                </p>  
+            </div>  
+            <div class="analysis-card">  
+                <div class="card-number">02</div>  
+                <p class="card-text">  
+                    Clear price correlation with flat sizes, following 5-Room > 4-Room > 3-Room pattern. <span class="highlight-bedok">Bedok</span> maintains higher average prices.  
+                </p>  
+            </div>  
+            <div class="analysis-card">  
+                <div class="card-number">03</div>  
+                <p class="card-text">  
+                    Market shows stability with consistent, moderate price appreciation across all categories.  
+                </p>  
+            </div>  
+        </div>  
+
+        <div class="chart-container">  
+            <div id="chart"></div>  
+        </div>  
+    </div>  
+
+    <script>  
+        const data = [  
+            { year: 2015, region: "BEDOK", roomType: "3-Room", price: 320000 },  
+            { year: 2015, region: "HOUGANG", roomType: "3-Room", price: 310000 },  
+            { year: 2016, region: "BEDOK", roomType: "3-Room", price: 335000 },  
+            { year: 2016, region: "HOUGANG", roomType: "3-Room", price: 320000 },  
+            { year: 2015, region: "BEDOK", roomType: "4-Room", price: 420000 },  
+            { year: 2015, region: "HOUGANG", roomType: "4-Room", price: 400000 },  
+            { year: 2016, region: "BEDOK", roomType: "4-Room", price: 440000 },  
+            { year: 2016, region: "HOUGANG", roomType: "4-Room", price: 415000 },  
+            { year: 2015, region: "BEDOK", roomType: "5-Room", price: 520000 },  
+            { year: 2015, region: "HOUGANG", roomType: "5-Room", price: 490000 },  
+            { year: 2016, region: "BEDOK", roomType: "5-Room", price: 545000 },  
+            { year: 2016, region: "HOUGANG", roomType: "5-Room", price: 510000 }  
+        ];  
+
+        const margin = { top: 40, right: 120, bottom: 60, left: 80 };  
+        const width = 1000 - margin.left - margin.right;  
+        const height = 500 - margin.top - margin.bottom;  
+
+        const svg = d3.select("#chart")  
+            .append("svg")  
+            .attr("width", width + margin.left + margin.right)  
+            .attr("height", height + margin.top + margin.bottom)  
+            .append("g")  
+            .attr("transform", `translate(${margin.left},${margin.top})`);  
+
+        const x0 = d3.scaleBand()  
+            .domain(data.map(d => d.year))  
+            .range([0, width])  
+            .padding(0.2);  
+
+        const x1 = d3.scaleBand()  
+            .domain(["3-Room", "4-Room", "5-Room"])  
+            .range([0, x0.bandwidth()])  
+            .padding(0.05);  
+
+        const y = d3.scaleLinear()  
+            .domain([0, d3.max(data, d => d.price)])  
+            .nice()  
+            .range([height, 0]);  
+
+        const color = d3.scaleOrdinal()  
+            .domain(["BEDOK", "HOUGANG"])  
+            .range(["#6A0DAD", "#22c55e"]);  
+
+        // Add Y Grid lines  
+        svg.append("g")  
+            .attr("class", "grid")  
+            .call(d3.axisLeft(y)  
+                .tickSize(-width)  
+                .tickFormat("")  
+            )  
+            .style("stroke-dasharray", "3,3")  
+            .style("stroke-opacity", 0.1);  
+
+        const yearGroups = svg.selectAll(".year-group")  
+            .data(d3.group(data, d => d.year))  
+            .join("g")  
+            .attr("class", "year-group")  
+            .attr("transform", ([year]) => `translate(${x0(year)},0)`);  
+
+        const roomGroups = yearGroups.selectAll(".room-group")  
+            .data(([_, yearData]) => yearData)  
+            .join("g")  
+            .attr("class", "room-group")  
+            .attr("transform", d => `translate(${x1(d.roomType)},0)`);  
+
+        roomGroups.append("rect")  
+            .attr("class", "bar")  
+            .attr("y", d => y(d.price))  
+            .attr("width", x1.bandwidth())  
+            .attr("height", d => height - y(d.price))  
+            .attr("fill", d => color(d.region))  
+            .attr("rx", 4)  
+            .on("mouseover", (event, d) => {  
+                const tooltip = d3.select("body").append("div")  
+                    .attr("class", "tooltip")  
+                    .style("opacity", 0);  
+
+                tooltip.transition()  
+                    .duration(200)  
+                    .style("opacity", 1);  
+
+                tooltip.html(`  
+                    <div class="tooltip-label">Year</div>  
+                    <div class="tooltip-value">${d.year}</div>  
+                    <div class="tooltip-label">Region</div>  
+                    <div class="tooltip-value">${d.region}</div>  
+                    <div class="tooltip-label">Type</div>  
+                    <div class="tooltip-value">${d.roomType}</div>  
+                    <div class="tooltip-label">Price</div>  
+                    <div class="tooltip-value">$${d.price.toLocaleString()}</div>  
+                `)  
+                    .style("left", (event.pageX + 10) + "px")  
+                    .style("top", (event.pageY - 10) + "px");  
+            })  
+            .on("mouseout", () => {  
+                d3.selectAll(".tooltip").remove();  
+            });  
+
+        // Axes  
+        svg.append("g")  
+            .attr("class", "axis")  
+            .attr("transform", `translate(0,${height})`)  
+            .call(d3.axisBottom(x0));  
+
+        svg.append("g")  
+            .attr("class", "axis")  
+            .call(d3.axisLeft(y)  
+                .tickFormat(d => `$${d/1000}k`));  
+
+        // Legend  
+        const legend = svg.append("g")  
+            .attr("class", "legend")  
+            .attr("transform", `translate(${width + 20}, 0)`);  
+
+        const regions = ["BEDOK", "HOUGANG"];  
+        regions.forEach((region, i) => {  
+            const legendRow = legend.append("g")  
+                .attr("transform", `translate(0, ${i * 25})`);  
+
+            legendRow.append("rect")  
+                .attr("width", 16)  
+                .attr("height", 16)  
+                .attr("rx", 4)  
+                .attr("fill", color(region));  
+
+            legendRow.append("text")  
+                .attr("x", 24)  
+                .attr("y", 12)  
+                .text(region);  
+        });  
+    </script>  
+</body>  
+</html> 
